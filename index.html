@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.css">
+    
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:;base64,=">
+</head>
+
+
+<body>
+    <div class="container text-center">
+        <h1 class="my-4">Tic-Tac-Toe</h1>
+        <h2 id="turnIndicator">X's Turn</h2>
+        <div id="gameGrid" class="grid-container">
+            <div class="grid-item" data-cell></div>
+            <div class="grid-item" data-cell></div>
+            <div class="grid-item" data-cell></div>
+            <div class="grid-item" data-cell></div>
+            <div class="grid-item" data-cell></div>
+            <div class="grid-item" data-cell></div>
+            <div class="grid-item" data-cell></div>
+            <div class="grid-item" data-cell></div>
+            <div class="grid-item" data-cell></div>
+        </div>
+        <button id="resetButton" class="btn btn-primary mt-3">Reset</button>
+        <div id="alertContainer" class="mt-3"></div>
+    </div>
+
+
+<script src="node_modules/jquery/dist/jquery.js"></script>
+<script src="node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
+<script>
+ $(document).ready(function() {
+    const X_CLASS = 'X';
+    const O_CLASS = 'O';
+    const WINNING_COMBINATIONS = [
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8],
+            [0, 3, 6],
+            [1, 4, 7],
+            [2, 5, 8],
+            [0, 4, 8],
+            [2, 4, 6]
+        ];
+    const cellElements = $('[data-cell]');
+    let circleTurn = false;
+
+startGame();
+
+function handleClick(e) {
+    const cell = $(e.target);
+    const currentClass = circleTurn ? O_CLASS : X_CLASS;
+    placeMark(cell, currentClass);
+    if (checkWin(currentClass)) {
+                endGame(false);
+            } else if (isDraw()) {
+                endGame(true);
+            } else {
+    swapTurns();
+    setTurnIndicator();
+}
+}
+
+function startGame(){
+    cellElements.each(function() {
+        $(this).removeClass(X_CLASS);
+        $(this).removeClass(O_CLASS);
+        $(this).text('');
+        $(this).off('click');
+        $(this).on('click', handleClick);
+    });
+    circleTurn = false;
+    setTurnIndicator();
+    $('#alertContainer').text('');
+    }
+
+function placeMark(cell, currentClass) {
+    cell.addClass(currentClass);
+    cell.text(currentClass === X_CLASS ? 'X' : 'O');
+}
+
+function swapTurns() {
+    circleTurn = !circleTurn;
+}
+
+function setTurnIndicator() {
+    $('#turnIndicator').text(`${circleTurn ? "O's" : "X's"} Turn`);
+}
+
+function checkWin(currentClass) {
+    return WINNING_COMBINATIONS.some(combination => {
+        return combination.every(index => {
+            return cellElements.eq(index).hasClass(currentClass)
+        })
+    })
+}
+
+function isDraw() {
+    return cellElements.toArray().every(cell => {
+        return $(cell).hasClass(X_CLASS) || $(cell).hasClass(O_CLASS);
+    });
+}
+
+function endGame(draw) {
+    if (draw) {
+        $('#alertContainer').text("It's a Draw!");
+    } else {
+        $('#alertContainer').text(`${circleTurn ? "O's" : "X's"} Wins!`);
+    }
+    cellElements.off('click');
+}
+
+
+$('#resetButton').on('click', startGame);
+
+
+
+
+});
+</script>
+</body>
+</html>
